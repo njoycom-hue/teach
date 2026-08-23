@@ -23,6 +23,9 @@ concurrency:
   group: build-apk-${{ github.ref }}
   cancel-in-progress: false
 
+permissions:
+  contents: write # GitHub Release 생성/삭제에 필요
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -78,9 +81,19 @@ jobs:
         run: |
           eas build --platform android --profile preview --local --non-interactive --output app-release.apk
 
-      - name: APK 업로드 (Artifacts 탭에서 다운로드)
-        uses: actions/upload-artifact@v4
-        with:
-          name: tutoring-manager-apk
-          path: mobile/app-release.apk
-          if-no-files-found: error
+      - name: 이전 릴리즈 삭제 (최신 1개만 유지)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for tag in $(gh release list --limit 100 --json tagName -q '.[].tagName'); do
+            echo "삭제: $tag"
+            gh release delete "$tag" --yes --cleanup-tag
+          done
+
+      - name: GitHub Release에 APK 게시
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "latest" app-release.apk \
+            --title "과외학생관리 APK ($(date -u +'%Y-%m-%d %H:%M UTC'))" \
+            --notes "빌드 방식: ${{ inputs.build_mode }} · 커밋: ${{ github.sha }}"
