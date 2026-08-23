@@ -39,12 +39,12 @@ jobs:
       - name: Node 설정
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: mobile/package-lock.json
 
       - name: 의존성 설치
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Java 설정 (local 빌드용)
         if: ${{ inputs.build_mode == 'local' }}
