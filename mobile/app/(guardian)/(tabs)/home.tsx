@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { ScrollView, Text } from 'react-native';
 
-import { StudentStatCard } from '../../src/components/StudentStatCard';
-import { TopBar } from '../../src/components/TopBar';
-import { Button, Card, H2, Input, Muted, Screen } from '../../src/components/ui';
-import { useAuth } from '../../src/hooks/useAuth';
-import { useGuardianStudents, useLinkGuardianToStudent } from '../../src/hooks/useClassrooms';
+import { StudentStatCard } from '../../../src/components/StudentStatCard';
+import { TopBar } from '../../../src/components/TopBar';
+import { Button, Card, H2, Input, Muted, Screen } from '../../../src/components/ui';
+import { useAuth } from '../../../src/hooks/useAuth';
+import { useGuardianStudents, useLinkGuardianToStudent } from '../../../src/hooks/useClassrooms';
 
 export default function GuardianHome() {
   const { profile } = useAuth();

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { AttendanceHistory } from '../../src/components/AttendanceHistory';
-import { ExamRecordList } from '../../src/components/ExamRecordList';
-import { StudentStatCard } from '../../src/components/StudentStatCard';
-import { TopBar } from '../../src/components/TopBar';
-import { colors, Muted, Screen } from '../../src/components/ui';
-import { useAuth } from '../../src/hooks/useAuth';
-import { useGuardianStudents } from '../../src/hooks/useClassrooms';
+import { AttendanceHistory } from '../../../src/components/AttendanceHistory';
+import { ExamRecordList } from '../../../src/components/ExamRecordList';
+import { StudentStatCard } from '../../../src/components/StudentStatCard';
+import { TopBar } from '../../../src/components/TopBar';
+import { colors, Muted, Screen } from '../../../src/components/ui';
+import { TuitionList } from '../../../src/components/TuitionList';
+import { useAuth } from '../../../src/hooks/useAuth';
+import { useGuardianStudents } from '../../../src/hooks/useClassrooms';
 
 export default function GuardianStats() {
   const { profile } = useAuth();
@@ -48,6 +49,7 @@ export default function GuardianStats() {
             <StudentStatCard studentId={selected.student.id} studentName={selected.student.name} />
             <AttendanceHistory studentId={selected.student.id} />
             <ExamRecordList studentId={selected.student.id} />
+            <TuitionList studentId={selected.student.id} />
           </>
         )}
       </ScrollView>

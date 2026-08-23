@@ -21,8 +21,8 @@ export default function Index() {
   }
 
   if (activeRole === 'TEACHER') return <Redirect href="/(teacher)/(tabs)/dashboard" />;
-  if (activeRole === 'STUDENT') return <Redirect href="/(student)/today" />;
-  if (activeRole === 'GUARDIAN') return <Redirect href="/(guardian)/home" />;
+  if (activeRole === 'STUDENT') return <Redirect href="/(student)/(tabs)/today" />;
+  if (activeRole === 'GUARDIAN') return <Redirect href="/(guardian)/(tabs)/home" />;
 
   if (roles.length === 0) {
     return (

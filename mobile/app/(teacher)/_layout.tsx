@@ -6,6 +6,7 @@ export default function TeacherLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="classroom/[id]" />
+      <Stack.Screen name="chat/[classroomId]/[studentId]" />
     </Stack>
   );
 }

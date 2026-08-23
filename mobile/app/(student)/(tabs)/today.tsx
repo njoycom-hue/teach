@@ -1,20 +1,26 @@
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
-import { GuardianRequestsCard } from '../../src/components/GuardianRequestsCard';
-import { ProofThumbnail } from '../../src/components/ProofThumbnail';
-import { TopBar } from '../../src/components/TopBar';
-import { Button, Card, colors, H2, Input, Muted, Screen } from '../../src/components/ui';
-import { useAuth } from '../../src/hooks/useAuth';
-import { useJoinClassroom, useMyClassrooms } from '../../src/hooks/useClassrooms';
-import { useCompleteGoal, useTodayGoals } from '../../src/hooks/useGoals';
-import { useUploadProof } from '../../src/hooks/useProofUpload';
-import { useAddStudyLog } from '../../src/hooks/useStudyLogs';
+import { GuardianRequestsCard } from '../../../src/components/GuardianRequestsCard';
+import { ProofThumbnail } from '../../../src/components/ProofThumbnail';
+import { TopBar } from '../../../src/components/TopBar';
+import { Button, Card, colors, H2, Input, Muted, Screen } from '../../../src/components/ui';
+import { useAuth } from '../../../src/hooks/useAuth';
+import { useJoinClassroom, useMyClassrooms } from '../../../src/hooks/useClassrooms';
+import { useCompleteGoal, useTodayGoals } from '../../../src/hooks/useGoals';
+import { useAutoGenerateRecurringGoals } from '../../../src/hooks/useGoalTemplates';
+import { useUploadProof } from '../../../src/hooks/useProofUpload';
+import { useAddStudyLog } from '../../../src/hooks/useStudyLogs';
 
 export default function TodayGoals() {
   const { profile } = useAuth();
   const { data: classrooms, isLoading: classroomsLoading } = useMyClassrooms(profile?.id);
   const classroomIds = (classrooms ?? []).map((c) => c.id);
+  const queryClient = useQueryClient();
+  useAutoGenerateRecurringGoals(classroomIds, () => {
+    queryClient.invalidateQueries({ queryKey: ['today-goals'] });
+  });
 
   const { data: goals, isLoading: goalsLoading } = useTodayGoals(profile?.id, classroomIds);
   const completeGoal = useCompleteGoal(profile?.id);

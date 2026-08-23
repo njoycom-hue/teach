@@ -47,6 +47,18 @@ export interface GuardianStudentLink {
   created_at: string;
 }
 
+export interface GoalTemplate {
+  id: string;
+  classroom_id: string;
+  student_id: string | null;
+  title: string;
+  description: string | null;
+  weekdays: number[];
+  active: boolean;
+  created_by: string;
+  created_at: string;
+}
+
 export interface Goal {
   id: string;
   classroom_id: string;
@@ -56,6 +68,7 @@ export interface Goal {
   target_date: string;
   goal_type: GoalType;
   created_by: string;
+  template_id: string | null;
   created_at: string;
 }
 
@@ -114,4 +127,26 @@ export interface PushToken {
   user_id: string;
   expo_push_token: string;
   created_at: string;
+}
+
+export interface TuitionPayment {
+  id: string;
+  classroom_id: string;
+  student_id: string;
+  amount: number;
+  due_date: string;
+  paid_date: string | null;
+  memo: string | null;
+  created_by: string;
+  created_at: string;
+}
+
+export interface Message {
+  id: string;
+  classroom_id: string;
+  student_id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+  read_at: string | null;
 }

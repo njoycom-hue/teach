@@ -18,8 +18,8 @@ export function TopBar({ title }: { title: string }) {
   const handleSwitch = (role: string) => {
     setActiveRole(role as any);
     if (role === 'TEACHER') router.replace('/(teacher)/(tabs)/dashboard');
-    if (role === 'STUDENT') router.replace('/(student)/today');
-    if (role === 'GUARDIAN') router.replace('/(guardian)/home');
+    if (role === 'STUDENT') router.replace('/(student)/(tabs)/today');
+    if (role === 'GUARDIAN') router.replace('/(guardian)/(tabs)/home');
   };
 
   return (

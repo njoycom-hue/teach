@@ -1,13 +1,17 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { GoalTemplateManager } from '../../../src/components/GoalTemplateManager';
+import { TuitionManager } from '../../../src/components/TuitionManager';
 import { Button, Card, colors, H1, H2, Input, Muted, Screen } from '../../../src/components/ui';
 import { useAuth } from '../../../src/hooks/useAuth';
 import { useClassroomAttendance, useMarkAttendance } from '../../../src/hooks/useAttendance';
 import { useClassroomStudents } from '../../../src/hooks/useClassrooms';
 import { useCreateExamRecord } from '../../../src/hooks/useExamRecords';
 import { useClassroomGoalsForDate, useCreateGoal } from '../../../src/hooks/useGoals';
+import { useAutoGenerateRecurringGoals } from '../../../src/hooks/useGoalTemplates';
 import type { AttendanceStatus } from '../../../src/types/database';
 
 const ATTENDANCE_OPTIONS: { value: AttendanceStatus; label: string }[] = [
@@ -22,6 +26,11 @@ export default function ClassroomDetail() {
   const { profile } = useAuth();
 
   const { data: roster } = useClassroomStudents(id);
+  const queryClient = useQueryClient();
+  const classroomIds = id ? [id] : [];
+  useAutoGenerateRecurringGoals(classroomIds, () => {
+    queryClient.invalidateQueries({ queryKey: ['classroom-goals', id] });
+  });
   const { data: goalData, isLoading: goalsLoading } = useClassroomGoalsForDate(id);
   const createGoal = useCreateGoal(profile?.id);
 
@@ -129,6 +138,8 @@ export default function ClassroomDetail() {
           );
         })}
 
+        {id && <GoalTemplateManager classroomId={id} />}
+
         <H2 style={{ marginTop: 8 }}>오늘 출석 체크 ({today})</H2>
         <Card>
           {(roster ?? []).length === 0 && <Muted>등록된 학생이 없어요.</Muted>}
@@ -191,11 +202,23 @@ export default function ClassroomDetail() {
           <Button title="등록" onPress={handleCreateExam} loading={createExam.isPending} />
         </Card>
 
+        {id && <TuitionManager classroomId={id} />}
+
         <H2 style={{ marginTop: 8 }}>학생 목록</H2>
         {(roster ?? []).map((item) => (
           <Card key={item.id}>
-            <Text style={{ fontWeight: '600', color: colors.text }}>{item.student.name}</Text>
-            <Muted>{item.student.email}</Muted>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View>
+                <Text style={{ fontWeight: '600', color: colors.text }}>{item.student.name}</Text>
+                <Muted>{item.student.email}</Muted>
+              </View>
+              <Pressable
+                onPress={() => id && router.push(`/(teacher)/chat/${id}/${item.student.id}`)}
+                style={styles.messageBtn}
+              >
+                <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 12 }}>메시지</Text>
+              </Pressable>
+            </View>
           </Card>
         ))}
       </ScrollView>
@@ -225,6 +248,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 14,
+    backgroundColor: colors.primarySoft,
+  },
+  messageBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
     backgroundColor: colors.primarySoft,
   },
 });

@@ -1,20 +1,11 @@
-import { Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
 import React from 'react';
 
-import { colors } from '../../src/components/ui';
-
-export default function StudentTabsLayout() {
+export default function StudentLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textMuted,
-      }}
-    >
-      <Tabs.Screen name="today" options={{ title: '오늘의 목표' }} />
-      <Tabs.Screen name="records" options={{ title: '출결·성적' }} />
-      <Tabs.Screen name="stats" options={{ title: '나의 통계' }} />
-    </Tabs>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="chat/[classroomId]" />
+    </Stack>
   );
 }

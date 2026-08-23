@@ -125,6 +125,44 @@ export function useGuardianStudents(guardianId: string | undefined) {
   });
 }
 
+// ---- 보호자: 채팅 가능한 (반, 자녀) 스레드 목록 ----
+export function useGuardianThreads(guardianId: string | undefined) {
+  return useQuery({
+    queryKey: ['guardian-threads', guardianId],
+    enabled: !!guardianId,
+    queryFn: async () => {
+      const { data: links, error: linksError } = await supabase
+        .from('guardian_student_links')
+        .select('student:users!guardian_student_links_student_id_fkey(id, name)')
+        .eq('guardian_id', guardianId)
+        .eq('status', 'APPROVED');
+      if (linksError) throw linksError;
+
+      const students = (links as unknown as { student: { id: string; name: string } }[]).map((l) => l.student);
+      if (students.length === 0) return [];
+
+      const { data: memberships, error: membershipsError } = await supabase
+        .from('classroom_students')
+        .select('student_id, classroom:classrooms(id, name)')
+        .in(
+          'student_id',
+          students.map((s) => s.id)
+        )
+        .eq('status', 'ACTIVE');
+      if (membershipsError) throw membershipsError;
+
+      return (memberships as unknown as { student_id: string; classroom: { id: string; name: string } }[]).map(
+        (m) => ({
+          classroomId: m.classroom.id,
+          classroomName: m.classroom.name,
+          studentId: m.student_id,
+          studentName: students.find((s) => s.id === m.student_id)?.name ?? '',
+        })
+      );
+    },
+  });
+}
+
 // ---- 학생: 나에게 온 보호자 연결 요청(대기중) ----
 export function usePendingGuardianRequests(studentId: string | undefined) {
   return useQuery({

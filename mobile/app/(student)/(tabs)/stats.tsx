@@ -1,12 +1,12 @@
 import React from 'react';
 import { Switch, Text, View } from 'react-native';
 
-import { TopBar } from '../../src/components/TopBar';
-import { Card, colors, H2, Muted, Screen } from '../../src/components/ui';
-import { WeeklyBarChart } from '../../src/components/WeeklyBarChart';
-import { useAuth } from '../../src/hooks/useAuth';
-import { useReminder } from '../../src/hooks/useReminder';
-import { useWeeklyStats } from '../../src/hooks/useStats';
+import { TopBar } from '../../../src/components/TopBar';
+import { Card, colors, H2, Muted, Screen } from '../../../src/components/ui';
+import { WeeklyBarChart } from '../../../src/components/WeeklyBarChart';
+import { useAuth } from '../../../src/hooks/useAuth';
+import { useReminder } from '../../../src/hooks/useReminder';
+import { useWeeklyStats } from '../../../src/hooks/useStats';
 
 export default function StudentStats() {
   const { profile } = useAuth();
