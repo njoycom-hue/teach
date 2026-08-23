@@ -86,17 +86,17 @@ alter table public.notifications enable row level security;
 -- =========================================================
 create policy "users_select_self_or_related" on public.users
 for select using (
-  id = auth.uid()
-  or public.is_teacher_of_student(id)
-  or public.is_guardian_of(id)
+  users.id = auth.uid()
+  or public.is_teacher_of_student(users.id)
+  or public.is_guardian_of(users.id)
   or exists (
     select 1 from public.classroom_students cs
     join public.classrooms c on c.id = cs.classroom_id
-    where c.teacher_id = id and cs.student_id = auth.uid()
+    where c.teacher_id = users.id and cs.student_id = auth.uid()
   )
   or exists (
     select 1 from public.guardian_student_links gl
-    where gl.student_id = id and gl.guardian_id = auth.uid()
+    where gl.student_id = users.id and gl.guardian_id = auth.uid()
   )
 );
 
@@ -121,10 +121,10 @@ with check (teacher_id = auth.uid());
 
 create policy "classrooms_select_member" on public.classrooms
 for select using (
-  public.is_student_in_classroom(id, auth.uid())
+  public.is_student_in_classroom(classrooms.id, auth.uid())
   or exists (
     select 1 from public.classroom_students cs
-    where cs.classroom_id = id and public.is_guardian_of(cs.student_id)
+    where cs.classroom_id = classrooms.id and public.is_guardian_of(cs.student_id)
   )
 );
 
