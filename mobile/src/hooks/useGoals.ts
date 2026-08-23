@@ -45,10 +45,12 @@ export function useCompleteGoal(studentId: string | undefined) {
       goalId,
       status,
       durationMinutes,
+      proofUrl,
     }: {
       goalId: string;
       status: 'DONE' | 'SKIPPED';
       durationMinutes?: number;
+      proofUrl?: string | null;
     }) => {
       if (!studentId) throw new Error('로그인이 필요합니다.');
       const { data, error } = await supabase
@@ -60,6 +62,7 @@ export function useCompleteGoal(studentId: string | undefined) {
             status,
             completed_at: status === 'DONE' ? new Date().toISOString() : null,
             duration_minutes: durationMinutes ?? null,
+            proof_url: proofUrl ?? null,
           },
           { onConflict: 'goal_id,student_id' }
         )

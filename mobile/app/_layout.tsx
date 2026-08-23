@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { PushTokenRegistrar } from '../src/components/PushTokenRegistrar';
 import { AuthProvider } from '../src/hooks/useAuth';
 
 export default function RootLayout() {
@@ -13,6 +14,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          <PushTokenRegistrar />
           <Stack screenOptions={{ headerShown: false }} />
           <StatusBar style="auto" />
         </AuthProvider>

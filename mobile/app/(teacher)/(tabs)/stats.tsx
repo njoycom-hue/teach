@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { StudentStatCard } from '../../../src/components/StudentStatCard';
 import { TopBar } from '../../../src/components/TopBar';
@@ -23,28 +23,25 @@ export default function TeacherStats() {
       <TopBar title="통계" />
 
       {classrooms && classrooms.length > 0 && (
-        <FlatList
-          horizontal
-          data={classrooms}
-          keyExtractor={(c) => c.id}
-          style={{ marginBottom: 12, flexGrow: 0 }}
-          renderItem={({ item }) => (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12, flexGrow: 0 }}>
+          {classrooms.map((item) => (
             <Pressable
+              key={item.id}
               onPress={() => setSelectedId(item.id)}
               style={[styles.chip, selectedId === item.id && styles.chipActive]}
             >
               <Text style={[styles.chipText, selectedId === item.id && { color: '#fff' }]}>{item.name}</Text>
             </Pressable>
-          )}
-        />
+          ))}
+        </ScrollView>
       )}
 
-      <FlatList
-        data={roster ?? []}
-        keyExtractor={(r) => r.id}
-        ListEmptyComponent={!isLoading ? <Muted>등록된 학생이 없어요.</Muted> : null}
-        renderItem={({ item }) => <StudentStatCard studentId={item.student.id} studentName={item.student.name} />}
-      />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {!isLoading && (roster ?? []).length === 0 && <Muted>등록된 학생이 없어요.</Muted>}
+        {(roster ?? []).map((item) => (
+          <StudentStatCard key={item.id} studentId={item.student.id} studentName={item.student.name} />
+        ))}
+      </ScrollView>
     </Screen>
   );
 }

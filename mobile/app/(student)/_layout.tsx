@@ -13,6 +13,7 @@ export default function StudentTabsLayout() {
       }}
     >
       <Tabs.Screen name="today" options={{ title: '오늘의 목표' }} />
+      <Tabs.Screen name="records" options={{ title: '출결·성적' }} />
       <Tabs.Screen name="stats" options={{ title: '나의 통계' }} />
     </Tabs>
   );

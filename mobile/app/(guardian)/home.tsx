@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlatList, Text } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 
 import { StudentStatCard } from '../../src/components/StudentStatCard';
 import { TopBar } from '../../src/components/TopBar';
@@ -28,26 +28,38 @@ export default function GuardianHome() {
     }
   };
 
+  const approved = (links ?? []).filter((l) => l.status === 'APPROVED');
+  const pending = (links ?? []).filter((l) => l.status === 'PENDING');
+
   return (
     <Screen>
       <TopBar title="자녀 현황" />
 
-      <FlatList
-        data={links ?? []}
-        keyExtractor={(l) => l.id}
-        ListEmptyComponent={!isLoading ? <Muted>아직 연결된 자녀가 없어요.</Muted> : null}
-        renderItem={({ item }) => <StudentStatCard studentId={item.student.id} studentName={item.student.name} />}
-        ListFooterComponent={
-          <Card style={{ marginTop: 8 }}>
-            <H2>자녀 계정 연결하기</H2>
-            <Muted>자녀(학생)가 가입할 때 사용한 이메일을 입력해주세요.</Muted>
-            <Input placeholder="자녀 이메일" autoCapitalize="none" value={email} onChangeText={setEmail} />
-            <Input placeholder="관계 (예: 모, 부) - 선택" value={relation} onChangeText={setRelation} />
-            {errorMsg && <Text style={{ color: 'red', marginBottom: 8 }}>{errorMsg}</Text>}
-            <Button title="연결하기" onPress={handleLink} loading={linkGuardian.isPending} />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {!isLoading && approved.length === 0 && pending.length === 0 && (
+          <Muted>아직 연결된 자녀가 없어요.</Muted>
+        )}
+
+        {pending.map((item) => (
+          <Card key={item.id}>
+            <H2>{item.student.name}</H2>
+            <Muted>학생의 승인을 기다리는 중이에요.</Muted>
           </Card>
-        }
-      />
+        ))}
+
+        {approved.map((item) => (
+          <StudentStatCard key={item.id} studentId={item.student.id} studentName={item.student.name} />
+        ))}
+
+        <Card style={{ marginTop: 8 }}>
+          <H2>자녀 계정 연결하기</H2>
+          <Muted>자녀(학생)가 가입할 때 사용한 이메일을 입력해주세요. 자녀가 승인하면 연결돼요.</Muted>
+          <Input placeholder="자녀 이메일" autoCapitalize="none" value={email} onChangeText={setEmail} />
+          <Input placeholder="관계 (예: 모, 부) - 선택" value={relation} onChangeText={setRelation} />
+          {errorMsg && <Text style={{ color: 'red', marginBottom: 8 }}>{errorMsg}</Text>}
+          <Button title="연결 요청 보내기" onPress={handleLink} loading={linkGuardian.isPending} />
+        </Card>
+      </ScrollView>
     </Screen>
   );
 }

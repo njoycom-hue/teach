@@ -1,15 +1,17 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { Switch, Text, View } from 'react-native';
 
 import { TopBar } from '../../src/components/TopBar';
 import { Card, colors, H2, Muted, Screen } from '../../src/components/ui';
 import { WeeklyBarChart } from '../../src/components/WeeklyBarChart';
 import { useAuth } from '../../src/hooks/useAuth';
+import { useReminder } from '../../src/hooks/useReminder';
 import { useWeeklyStats } from '../../src/hooks/useStats';
 
 export default function StudentStats() {
   const { profile } = useAuth();
   const { data: stats, isLoading } = useWeeklyStats(profile?.id);
+  const reminder = useReminder();
 
   return (
     <Screen>
@@ -32,6 +34,19 @@ export default function StudentStats() {
             <WeeklyBarChart days={stats.days} />
           </>
         )}
+      </Card>
+
+      <Card>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flex: 1, marginRight: 12 }}>
+            <H2>매일 목표 알림</H2>
+            <Muted>
+              매일 오후 {reminder.hour}시에 오늘의 목표를 확인하라는 알림을 보내드려요.
+            </Muted>
+          </View>
+          <Switch value={reminder.enabled} onValueChange={reminder.toggle} disabled={reminder.loading} />
+        </View>
+        {reminder.error && <Text style={{ color: 'red', marginTop: 8 }}>{reminder.error}</Text>}
       </Card>
     </Screen>
   );

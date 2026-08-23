@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
+import { AttendanceHistory } from '../../src/components/AttendanceHistory';
+import { ExamRecordList } from '../../src/components/ExamRecordList';
 import { StudentStatCard } from '../../src/components/StudentStatCard';
 import { TopBar } from '../../src/components/TopBar';
 import { colors, Muted, Screen } from '../../src/components/ui';
@@ -10,26 +12,24 @@ import { useGuardianStudents } from '../../src/hooks/useClassrooms';
 export default function GuardianStats() {
   const { profile } = useAuth();
   const { data: links, isLoading } = useGuardianStudents(profile?.id);
+  const approved = (links ?? []).filter((l) => l.status === 'APPROVED');
   const [selectedId, setSelectedId] = useState<string | undefined>();
 
   useEffect(() => {
-    if (!selectedId && links && links.length > 0) setSelectedId(links[0].student.id);
-  }, [links, selectedId]);
+    if (!selectedId && approved.length > 0) setSelectedId(approved[0].student.id);
+  }, [approved, selectedId]);
 
-  const selected = links?.find((l) => l.student.id === selectedId);
+  const selected = approved.find((l) => l.student.id === selectedId);
 
   return (
     <Screen>
       <TopBar title="통계" />
 
-      {links && links.length > 0 && (
-        <FlatList
-          horizontal
-          data={links}
-          keyExtractor={(l) => l.id}
-          style={{ marginBottom: 12, flexGrow: 0 }}
-          renderItem={({ item }) => (
+      {approved.length > 0 && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12, flexGrow: 0 }}>
+          {approved.map((item) => (
             <Pressable
+              key={item.id}
               onPress={() => setSelectedId(item.student.id)}
               style={[styles.chip, selectedId === item.student.id && styles.chipActive]}
             >
@@ -37,12 +37,20 @@ export default function GuardianStats() {
                 {item.student.name}
               </Text>
             </Pressable>
-          )}
-        />
+          ))}
+        </ScrollView>
       )}
 
-      {!isLoading && (!links || links.length === 0) && <Muted>아직 연결된 자녀가 없어요.</Muted>}
-      {selected && <StudentStatCard studentId={selected.student.id} studentName={selected.student.name} />}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {!isLoading && approved.length === 0 && <Muted>연결이 승인된 자녀가 없어요.</Muted>}
+        {selected && (
+          <>
+            <StudentStatCard studentId={selected.student.id} studentName={selected.student.name} />
+            <AttendanceHistory studentId={selected.student.id} />
+            <ExamRecordList studentId={selected.student.id} />
+          </>
+        )}
+      </ScrollView>
     </Screen>
   );
 }

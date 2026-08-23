@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { supabase } from '../lib/supabase';
-import type { AppUser, Classroom } from '../types/database';
+import type { AppUser, Classroom, GuardianLinkStatus } from '../types/database';
 
 // ---- 선생님: 내 반 목록 ----
 export function useTeacherClassrooms(teacherId: string | undefined) {
@@ -112,10 +112,49 @@ export function useGuardianStudents(guardianId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('guardian_student_links')
-        .select('id, relation, student:users!guardian_student_links_student_id_fkey(*)')
+        .select('id, relation, status, student:users!guardian_student_links_student_id_fkey(*)')
         .eq('guardian_id', guardianId);
       if (error) throw error;
-      return data as unknown as { id: string; relation: string | null; student: AppUser }[];
+      return data as unknown as {
+        id: string;
+        relation: string | null;
+        status: GuardianLinkStatus;
+        student: AppUser;
+      }[];
+    },
+  });
+}
+
+// ---- 학생: 나에게 온 보호자 연결 요청(대기중) ----
+export function usePendingGuardianRequests(studentId: string | undefined) {
+  return useQuery({
+    queryKey: ['guardian-requests', studentId],
+    enabled: !!studentId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('guardian_student_links')
+        .select('id, relation, guardian:users!guardian_student_links_guardian_id_fkey(*)')
+        .eq('student_id', studentId)
+        .eq('status', 'PENDING');
+      if (error) throw error;
+      return data as unknown as { id: string; relation: string | null; guardian: AppUser }[];
+    },
+  });
+}
+
+// ---- 학생: 보호자 연결 요청 승인/거절 ----
+export function useRespondGuardianRequest(studentId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ linkId, approve }: { linkId: string; approve: boolean }) => {
+      const { error } = await supabase
+        .from('guardian_student_links')
+        .update({ status: approve ? 'APPROVED' : 'REJECTED' })
+        .eq('id', linkId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['guardian-requests', studentId] });
     },
   });
 }

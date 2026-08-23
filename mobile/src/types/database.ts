@@ -43,6 +43,7 @@ export interface GuardianStudentLink {
   guardian_id: string;
   student_id: string;
   relation: string | null;
+  status: GuardianLinkStatus;
   created_at: string;
 }
 
@@ -92,5 +93,25 @@ export interface Attendance {
   session_date: string;
   status: AttendanceStatus;
   note: string | null;
+  created_at: string;
+}
+
+export interface ExamRecord {
+  id: string;
+  student_id: string;
+  classroom_id: string | null;
+  exam_name: string;
+  score: number | null;
+  max_score: number | null;
+  exam_date: string;
+  created_at: string;
+}
+
+export type GuardianLinkStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface PushToken {
+  id: string;
+  user_id: string;
+  expo_push_token: string;
   created_at: string;
 }
