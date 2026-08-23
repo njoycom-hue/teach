@@ -44,7 +44,7 @@ jobs:
           cache-dependency-path: mobile/package-lock.json
 
       - name: 의존성 설치
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Java 설정 (local 빌드용)
         if: ${{ inputs.build_mode == 'local' }}
