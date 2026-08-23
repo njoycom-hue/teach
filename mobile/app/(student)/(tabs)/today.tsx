@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
 import { GuardianRequestsCard } from '../../../src/components/GuardianRequestsCard';
+import { ProgressSummaryCard } from '../../../src/components/ProgressSummaryCard';
 import { ProofThumbnail } from '../../../src/components/ProofThumbnail';
 import { TopBar } from '../../../src/components/TopBar';
 import { Button, Card, colors, H2, Input, Muted, Screen } from '../../../src/components/ui';
@@ -66,7 +67,7 @@ export default function TodayGoals() {
   if (!classroomsLoading && classroomIds.length === 0) {
     return (
       <Screen>
-        <TopBar title="오늘의 목표" />
+        <TopBar title="오늘의 학습 계획" />
         <GuardianRequestsCard studentId={profile?.id} />
         <Card>
           <H2>선생님 반에 참여하기</H2>
@@ -81,26 +82,15 @@ export default function TodayGoals() {
 
   return (
     <Screen>
-      <TopBar title="오늘의 목표" />
-      <GuardianRequestsCard studentId={profile?.id} />
-
-      <Card>
-        <H2>오늘 학습시간 기록</H2>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <Input
-            placeholder="분(minutes)"
-            keyboardType="number-pad"
-            value={minutes}
-            onChangeText={setMinutes}
-            style={{ flex: 1 }}
-          />
-        </View>
-        <Button title="기록 추가" variant="secondary" onPress={handleLogMinutes} loading={addStudyLog.isPending} />
-      </Card>
-
-      {proofError && <Text style={{ color: 'red', marginBottom: 8 }}>{proofError}</Text>}
+      <TopBar title="오늘의 학습 계획" />
 
       <ScrollView showsVerticalScrollIndicator={false}>
+        <GuardianRequestsCard studentId={profile?.id} />
+
+        <ProgressSummaryCard studentId={profile?.id} />
+
+        <H2 style={{ marginTop: 4 }}>오늘 할 일</H2>
+        {proofError && <Text style={{ color: 'red', marginBottom: 8 }}>{proofError}</Text>}
         {!goalsLoading && (goals ?? []).length === 0 && <Muted>오늘 등록된 목표가 없어요.</Muted>}
         {(goals ?? []).map((item) => {
           const status = item.completion?.status;
@@ -142,6 +132,20 @@ export default function TodayGoals() {
             </Card>
           );
         })}
+
+        <Card style={{ marginTop: 8 }}>
+          <H2>오늘 학습시간 기록</H2>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Input
+              placeholder="분(minutes)"
+              keyboardType="number-pad"
+              value={minutes}
+              onChangeText={setMinutes}
+              style={{ flex: 1 }}
+            />
+          </View>
+          <Button title="기록 추가" variant="secondary" onPress={handleLogMinutes} loading={addStudyLog.isPending} />
+        </Card>
       </ScrollView>
     </Screen>
   );

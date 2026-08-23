@@ -10,6 +10,7 @@ import {
   View,
   ViewProps,
 } from 'react-native';
+import { Edge, SafeAreaView } from 'react-native-safe-area-context';
 
 export const colors = {
   bg: '#F5F7FA',
@@ -23,11 +24,18 @@ export const colors = {
   danger: '#EF4444',
 };
 
-export function Screen({ children, style, ...rest }: ViewProps) {
+const DEFAULT_SCREEN_EDGES: Edge[] = ['top', 'bottom'];
+
+export function Screen({
+  children,
+  style,
+  edges = DEFAULT_SCREEN_EDGES,
+  ...rest
+}: ViewProps & { edges?: Edge[] }) {
   return (
-    <View style={[styles.screen, style]} {...rest}>
+    <SafeAreaView edges={edges} style={[styles.screen, style]} {...rest}>
       {children}
-    </View>
+    </SafeAreaView>
   );
 }
 

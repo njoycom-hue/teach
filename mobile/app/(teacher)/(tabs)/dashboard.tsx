@@ -1,15 +1,14 @@
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, Text } from 'react-native';
+import { ScrollView } from 'react-native';
 
-import { Button, Card, colors, H2, Input, Muted, Screen } from '../../../src/components/ui';
+import { ClassroomListItem } from '../../../src/components/ClassroomListItem';
+import { Button, Card, Input, Muted, Screen } from '../../../src/components/ui';
 import { TopBar } from '../../../src/components/TopBar';
 import { useAuth } from '../../../src/hooks/useAuth';
 import { useCreateClassroom, useTeacherClassrooms } from '../../../src/hooks/useClassrooms';
 
 export default function TeacherDashboard() {
   const { profile } = useAuth();
-  const router = useRouter();
   const { data: classrooms, isLoading } = useTeacherClassrooms(profile?.id);
   const createClassroom = useCreateClassroom(profile?.id);
 
@@ -34,15 +33,7 @@ export default function TeacherDashboard() {
           <Muted>아직 만든 반이 없어요. 아래에서 새 반을 만들어보세요.</Muted>
         )}
         {(classrooms ?? []).map((item) => (
-          <Pressable key={item.id} onPress={() => router.push(`/(teacher)/classroom/${item.id}`)}>
-            <Card>
-              <H2>{item.name}</H2>
-              <Muted>{item.subject ?? '과목 미설정'}</Muted>
-              <Text style={{ marginTop: 8, fontSize: 12, color: colors.primary }}>
-                초대코드: {item.invite_code}
-              </Text>
-            </Card>
-          </Pressable>
+          <ClassroomListItem key={item.id} classroom={item} />
         ))}
 
         <Card style={{ marginTop: 8 }}>
