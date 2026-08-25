@@ -102,8 +102,26 @@ export function Button({
   );
 }
 
-export function Input(props: TextInputProps) {
-  return <TextInput style={styles.input} placeholderTextColor={colors.textMuted} {...props} />;
+export function Input({ style, ...props }: TextInputProps) {
+  return <TextInput style={[styles.input, style]} placeholderTextColor={colors.textMuted} {...props} />;
+}
+
+// 라벨이 입력값 위에 고정으로 남아있는 필드. 로그인/가입 등 값을 잊으면 안 되는 폼에 쓴다.
+export function Field({
+  label,
+  required,
+  style,
+  ...inputProps
+}: TextInputProps & { label: string; required?: boolean }) {
+  return (
+    <View style={{ marginBottom: 10 }}>
+      <Text style={styles.fieldLabel}>
+        {label}
+        {required && <Text style={{ color: colors.danger }}> *</Text>}
+      </Text>
+      <TextInput style={[styles.input, { marginBottom: 0 }, style]} placeholderTextColor={colors.textMuted} {...inputProps} />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -146,6 +164,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 15,
+  },
+  fieldLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 6,
   },
   input: {
     borderWidth: 1,

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
 
@@ -12,10 +13,42 @@ export default function StudentTabsLayout() {
         tabBarInactiveTintColor: colors.textMuted,
       }}
     >
-      <Tabs.Screen name="today" options={{ title: '오늘의 목표' }} />
-      <Tabs.Screen name="records" options={{ title: '출결·성적' }} />
-      <Tabs.Screen name="messages" options={{ title: '메시지' }} />
-      <Tabs.Screen name="stats" options={{ title: '나의 통계' }} />
+      <Tabs.Screen
+        name="today"
+        options={{
+          title: '계획',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'today' : 'today-outline'} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="records"
+        options={{
+          title: '출결·성적',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'document-text' : 'document-text-outline'} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="messages"
+        options={{
+          title: '메시지',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'chatbubbles' : 'chatbubbles-outline'} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="stats"
+        options={{
+          title: '통계',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'stats-chart' : 'stats-chart-outline'} size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
-import { ScrollView, Text } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { RefreshControl, ScrollView, Text } from 'react-native';
 
 import { StudentStatCard } from '../../../src/components/StudentStatCard';
 import { TopBar } from '../../../src/components/TopBar';
-import { Button, Card, H2, Input, Muted, Screen } from '../../../src/components/ui';
+import { Button, Card, colors, H2, Input, Muted, Screen } from '../../../src/components/ui';
 import { useAuth } from '../../../src/hooks/useAuth';
 import { useGuardianStudents, useLinkGuardianToStudent } from '../../../src/hooks/useClassrooms';
 
 export default function GuardianHome() {
   const { profile } = useAuth();
-  const { data: links, isLoading } = useGuardianStudents(profile?.id);
+  const { data: links, isLoading, isError, refetch } = useGuardianStudents(profile?.id);
   const linkGuardian = useLinkGuardianToStudent();
 
   const [email, setEmail] = useState('');
   const [relation, setRelation] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   const handleLink = async () => {
     setErrorMsg(null);
@@ -35,8 +42,12 @@ export default function GuardianHome() {
     <Screen>
       <TopBar title="자녀 현황" />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {!isLoading && approved.length === 0 && pending.length === 0 && (
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
+      >
+        {isError && <Muted>목록을 불러오지 못했어요. 아래로 당겨서 새로고침해보세요.</Muted>}
+        {!isLoading && !isError && approved.length === 0 && pending.length === 0 && (
           <Muted>아직 연결된 자녀가 없어요.</Muted>
         )}
 
@@ -56,7 +67,7 @@ export default function GuardianHome() {
           <Muted>자녀(학생)가 가입할 때 사용한 이메일을 입력해주세요. 자녀가 승인하면 연결돼요.</Muted>
           <Input placeholder="자녀 이메일" autoCapitalize="none" value={email} onChangeText={setEmail} />
           <Input placeholder="관계 (예: 모, 부) - 선택" value={relation} onChangeText={setRelation} />
-          {errorMsg && <Text style={{ color: 'red', marginBottom: 8 }}>{errorMsg}</Text>}
+          {errorMsg && <Text style={{ color: colors.danger, marginBottom: 8 }}>{errorMsg}</Text>}
           <Button title="연결 요청 보내기" onPress={handleLink} loading={linkGuardian.isPending} />
         </Card>
       </ScrollView>

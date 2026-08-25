@@ -1,11 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import { GuardianRequestsCard } from '../../../src/components/GuardianRequestsCard';
 import { ProgressSummaryCard } from '../../../src/components/ProgressSummaryCard';
 import { ProofThumbnail } from '../../../src/components/ProofThumbnail';
 import { TopBar } from '../../../src/components/TopBar';
+import { UpcomingPlanList } from '../../../src/components/UpcomingPlanList';
 import { Button, Card, colors, H2, Input, Muted, Screen } from '../../../src/components/ui';
 import { useAuth } from '../../../src/hooks/useAuth';
 import { useJoinClassroom, useMyClassrooms } from '../../../src/hooks/useClassrooms';
@@ -23,11 +24,27 @@ export default function TodayGoals() {
     queryClient.invalidateQueries({ queryKey: ['today-goals'] });
   });
 
-  const { data: goals, isLoading: goalsLoading } = useTodayGoals(profile?.id, classroomIds);
+  const {
+    data: goals,
+    isLoading: goalsLoading,
+    isError: goalsError,
+    refetch: refetchGoals,
+  } = useTodayGoals(profile?.id, classroomIds);
   const completeGoal = useCompleteGoal(profile?.id);
   const addStudyLog = useAddStudyLog(profile?.id);
   const uploadProof = useUploadProof(profile?.id);
   const [proofError, setProofError] = useState<string | null>(null);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([
+      refetchGoals(),
+      queryClient.invalidateQueries({ queryKey: ['weekly-stats'] }),
+      queryClient.invalidateQueries({ queryKey: ['upcoming-goals'] }),
+    ]);
+    setRefreshing(false);
+  }, [refetchGoals, queryClient]);
 
   const handleCompleteWithProof = async (goalId: string) => {
     setProofError(null);
@@ -84,14 +101,20 @@ export default function TodayGoals() {
     <Screen>
       <TopBar title="오늘의 학습 계획" />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
+      >
         <GuardianRequestsCard studentId={profile?.id} />
 
         <ProgressSummaryCard studentId={profile?.id} />
 
         <H2 style={{ marginTop: 4 }}>오늘 할 일</H2>
         {proofError && <Text style={{ color: 'red', marginBottom: 8 }}>{proofError}</Text>}
-        {!goalsLoading && (goals ?? []).length === 0 && <Muted>오늘 등록된 목표가 없어요.</Muted>}
+        {goalsError && <Muted>목표를 불러오지 못했어요. 아래로 당겨서 새로고침해보세요.</Muted>}
+        {!goalsLoading && !goalsError && (goals ?? []).length === 0 && (
+          <Muted>오늘 등록된 목표가 없어요.</Muted>
+        )}
         {(goals ?? []).map((item) => {
           const status = item.completion?.status;
           return (
@@ -132,6 +155,8 @@ export default function TodayGoals() {
             </Card>
           );
         })}
+
+        <UpcomingPlanList studentId={profile?.id} classroomIds={classroomIds} />
 
         <Card style={{ marginTop: 8 }}>
           <H2>오늘 학습시간 기록</H2>

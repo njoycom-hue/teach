@@ -1,8 +1,8 @@
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { Button, colors, H1, Input, Muted, Screen } from '../../src/components/ui';
+import { Button, colors, Field, H1, Muted, Screen } from '../../src/components/ui';
 import { useAuth } from '../../src/hooks/useAuth';
 import type { AppRole } from '../../src/types/database';
 
@@ -52,44 +52,63 @@ export default function SignupScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Screen style={{ justifyContent: 'center' }}>
-        <H1>회원가입</H1>
-        <Muted>역할은 나중에 추가로 연결할 수도 있어요.</Muted>
+      <Screen>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }} showsVerticalScrollIndicator={false}>
+          <H1>회원가입</H1>
+          <Muted>역할은 나중에 추가로 연결할 수도 있어요.</Muted>
 
-        <Input placeholder="이름" value={name} onChangeText={setName} style={{ marginTop: 20 }} />
-        <Input
-          placeholder="이메일"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <Input placeholder="비밀번호 (6자 이상)" secureTextEntry value={password} onChangeText={setPassword} />
+          <Field label="이름" required placeholder="홍길동" value={name} onChangeText={setName} style={{ marginTop: 20 }} />
+          <Field
+            label="이메일"
+            required
+            placeholder="you@example.com"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <Field
+            label="비밀번호"
+            required
+            placeholder="6자 이상"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
 
-        {ROLE_OPTIONS.map((opt) => (
-          <Pressable
-            key={opt.value}
-            onPress={() => setRole(opt.value)}
-            style={[styles.roleCard, role === opt.value && styles.roleCardActive]}
-          >
-            <Text style={[styles.roleLabel, role === opt.value && { color: colors.primary }]}>{opt.label}</Text>
-            <Text style={styles.roleDesc}>{opt.desc}</Text>
-          </Pressable>
-        ))}
+          <Text style={styles.roleSectionLabel}>역할 선택 *</Text>
+          {ROLE_OPTIONS.map((opt) => (
+            <Pressable
+              key={opt.value}
+              onPress={() => setRole(opt.value)}
+              style={[styles.roleCard, role === opt.value && styles.roleCardActive]}
+            >
+              <Text style={[styles.roleLabel, role === opt.value && { color: colors.primary }]}>{opt.label}</Text>
+              <Text style={styles.roleDesc}>{opt.desc}</Text>
+            </Pressable>
+          ))}
 
-        {errorMsg && <Text style={{ color: 'red', marginVertical: 10 }}>{errorMsg}</Text>}
+          {errorMsg && <Text style={{ color: colors.danger, marginVertical: 10 }}>{errorMsg}</Text>}
 
-        <Button title="가입하기" onPress={handleSubmit} loading={loading} />
+          <Button title="가입하기" onPress={handleSubmit} loading={loading} />
 
-        <Link href="/(auth)/login" style={{ marginTop: 16, textAlign: 'center', color: colors.primary }}>
-          이미 계정이 있으신가요? 로그인
-        </Link>
+          <Link href="/(auth)/login" style={{ marginTop: 16, marginBottom: 8, textAlign: 'center', color: colors.primary }}>
+            이미 계정이 있으신가요? 로그인
+          </Link>
+        </ScrollView>
       </Screen>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  roleSectionLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: 4,
+    marginBottom: 6,
+  },
   roleCard: {
     borderWidth: 1,
     borderColor: colors.border,

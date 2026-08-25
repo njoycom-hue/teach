@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
-import { ScrollView } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { RefreshControl, ScrollView } from 'react-native';
 
 import { ClassroomListItem } from '../../../src/components/ClassroomListItem';
-import { Button, Card, Input, Muted, Screen } from '../../../src/components/ui';
+import { Button, Card, colors, Input, Muted, Screen } from '../../../src/components/ui';
 import { TopBar } from '../../../src/components/TopBar';
 import { useAuth } from '../../../src/hooks/useAuth';
 import { useCreateClassroom, useTeacherClassrooms } from '../../../src/hooks/useClassrooms';
 
 export default function TeacherDashboard() {
   const { profile } = useAuth();
-  const { data: classrooms, isLoading } = useTeacherClassrooms(profile?.id);
+  const { data: classrooms, isLoading, isError, refetch } = useTeacherClassrooms(profile?.id);
   const createClassroom = useCreateClassroom(profile?.id);
 
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
   const [subject, setSubject] = useState('');
+
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   const handleCreate = async () => {
     if (!name.trim()) return;
@@ -28,8 +35,12 @@ export default function TeacherDashboard() {
     <Screen>
       <TopBar title="대시보드" />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {!isLoading && (classrooms ?? []).length === 0 && (
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
+      >
+        {isError && <Muted>반 목록을 불러오지 못했어요. 아래로 당겨서 새로고침해보세요.</Muted>}
+        {!isLoading && !isError && (classrooms ?? []).length === 0 && (
           <Muted>아직 만든 반이 없어요. 아래에서 새 반을 만들어보세요.</Muted>
         )}
         {(classrooms ?? []).map((item) => (
