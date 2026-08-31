@@ -141,6 +141,16 @@ export interface TuitionPayment {
   created_at: string;
 }
 
+export interface PersonalGoal {
+  id: string;
+  student_id: string;
+  title: string;
+  target_date: string;
+  completed: boolean;
+  completed_at: string | null;
+  created_at: string;
+}
+
 export interface Message {
   id: string;
   classroom_id: string;
