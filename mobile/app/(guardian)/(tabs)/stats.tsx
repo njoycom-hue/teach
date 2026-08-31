@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView } from 'react-native';
 
 import { AttendanceHistory } from '../../../src/components/AttendanceHistory';
 import { ExamRecordList } from '../../../src/components/ExamRecordList';
 import { StudentStatCard } from '../../../src/components/StudentStatCard';
 import { TopBar } from '../../../src/components/TopBar';
-import { colors, Muted, Screen } from '../../../src/components/ui';
+import { Chip, Muted, Screen } from '../../../src/components/ui';
 import { TuitionList } from '../../../src/components/TuitionList';
 import { useAuth } from '../../../src/hooks/useAuth';
 import { useGuardianStudents } from '../../../src/hooks/useClassrooms';
@@ -27,17 +27,14 @@ export default function GuardianStats() {
       <TopBar title="통계" />
 
       {approved.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12, flexGrow: 0 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 4, flexGrow: 0 }}>
           {approved.map((item) => (
-            <Pressable
+            <Chip
               key={item.id}
+              label={item.student.name}
+              active={selectedId === item.student.id}
               onPress={() => setSelectedId(item.student.id)}
-              style={[styles.chip, selectedId === item.student.id && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, selectedId === item.student.id && { color: '#fff' }]}>
-                {item.student.name}
-              </Text>
-            </Pressable>
+            />
           ))}
         </ScrollView>
       )}
@@ -56,21 +53,3 @@ export default function GuardianStats() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: colors.primarySoft,
-    marginRight: 8,
-  },
-  chipActive: {
-    backgroundColor: colors.primary,
-  },
-  chipText: {
-    color: colors.primary,
-    fontWeight: '600',
-    fontSize: 13,
-  },
-});

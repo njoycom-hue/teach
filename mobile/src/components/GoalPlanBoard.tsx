@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -5,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useClassroomStudents } from '../hooks/useClassrooms';
 import { useClassroomGoalsRange, useCreateGoal, useDeleteGoal } from '../hooks/useGoals';
 import { GoalTemplateManager } from './GoalTemplateManager';
-import { Button, Card, colors, H2, Input, Muted } from './ui';
+import { Button, Card, Chip, colors, H2, Input, Muted } from './ui';
 
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -79,18 +80,15 @@ export function GoalPlanBoard({ classroomId }: { classroomId: string }) {
         <Text style={styles.label}>날짜</Text>
         <View style={styles.row}>
           {QUICK_DATES.map((d) => (
-            <Pressable
+            <Chip
               key={d.value}
+              label={d.label}
+              active={!customDate && targetDate === d.value}
               onPress={() => {
                 setTargetDate(d.value);
                 setCustomDate('');
               }}
-              style={[styles.chip, !customDate && targetDate === d.value && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, !customDate && targetDate === d.value && { color: '#fff' }]}>
-                {d.label}
-              </Text>
-            </Pressable>
+            />
           ))}
         </View>
         <Input
@@ -101,22 +99,14 @@ export function GoalPlanBoard({ classroomId }: { classroomId: string }) {
 
         <Text style={styles.label}>대상</Text>
         <View style={styles.row}>
-          <Pressable
-            onPress={() => setTargetStudentId(null)}
-            style={[styles.chip, targetStudentId === null && styles.chipActive]}
-          >
-            <Text style={[styles.chipText, targetStudentId === null && { color: '#fff' }]}>반 전체</Text>
-          </Pressable>
+          <Chip label="반 전체" active={targetStudentId === null} onPress={() => setTargetStudentId(null)} />
           {(roster ?? []).map((r) => (
-            <Pressable
+            <Chip
               key={r.student.id}
+              label={r.student.name}
+              active={targetStudentId === r.student.id}
               onPress={() => setTargetStudentId(r.student.id)}
-              style={[styles.chip, targetStudentId === r.student.id && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, targetStudentId === r.student.id && { color: '#fff' }]}>
-                {r.student.name}
-              </Text>
-            </Pressable>
+            />
           ))}
         </View>
 
@@ -144,12 +134,8 @@ export function GoalPlanBoard({ classroomId }: { classroomId: string }) {
                     {done}/{relevant.length}명 완료
                   </Text>
                 </View>
-                <Pressable
-                  onPress={() => deleteGoal.mutate(item.id)}
-                  hitSlop={8}
-                  style={{ paddingHorizontal: 6, paddingVertical: 4 }}
-                >
-                  <Text style={{ color: colors.danger, fontSize: 12, fontWeight: '600' }}>삭제</Text>
+                <Pressable onPress={() => deleteGoal.mutate(item.id)} hitSlop={8} style={styles.deleteBtn}>
+                  <Ionicons name="trash-outline" size={16} color={colors.danger} />
                 </Pressable>
               </View>
             );
@@ -164,15 +150,7 @@ export function GoalPlanBoard({ classroomId }: { classroomId: string }) {
 
 const styles = StyleSheet.create({
   label: { fontSize: 12, color: colors.textMuted, marginBottom: 6, marginTop: 4 },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10 },
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: colors.primarySoft,
-  },
-  chipActive: { backgroundColor: colors.primary },
-  chipText: { fontSize: 12, color: colors.primary, fontWeight: '600' },
+  row: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 4 },
   dateLabel: { fontSize: 12, fontWeight: '700', color: colors.primary, marginBottom: 8 },
   goalRow: {
     flexDirection: 'row',
@@ -180,5 +158,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderTopWidth: 1,
     borderTopColor: colors.border,
+  },
+  deleteBtn: {
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: colors.dangerSoft,
   },
 });

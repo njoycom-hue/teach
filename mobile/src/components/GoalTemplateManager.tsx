@@ -8,7 +8,7 @@ import {
   useCreateGoalTemplate,
   useToggleGoalTemplate,
 } from '../hooks/useGoalTemplates';
-import { Button, Card, colors, H2, Input, Muted } from './ui';
+import { Button, Card, Chip, colors, H2, Input, Muted } from './ui';
 
 const WEEKDAYS = [
   { value: 0, label: '일' },
@@ -72,22 +72,14 @@ export function GoalTemplateManager({ classroomId }: { classroomId: string }) {
 
         <Text style={styles.label}>대상</Text>
         <View style={styles.row}>
-          <Pressable
-            onPress={() => setTargetStudentId(null)}
-            style={[styles.chip, targetStudentId === null && styles.chipActive]}
-          >
-            <Text style={[styles.chipText, targetStudentId === null && { color: '#fff' }]}>반 전체</Text>
-          </Pressable>
+          <Chip label="반 전체" active={targetStudentId === null} onPress={() => setTargetStudentId(null)} />
           {(roster ?? []).map((r) => (
-            <Pressable
+            <Chip
               key={r.student.id}
+              label={r.student.name}
+              active={targetStudentId === r.student.id}
               onPress={() => setTargetStudentId(r.student.id)}
-              style={[styles.chip, targetStudentId === r.student.id && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, targetStudentId === r.student.id && { color: '#fff' }]}>
-                {r.student.name}
-              </Text>
-            </Pressable>
+            />
           ))}
         </View>
 
@@ -126,12 +118,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: colors.primarySoft,
   },
   chipActive: { backgroundColor: colors.primary },
   chipText: { fontSize: 12, color: colors.primary, fontWeight: '600' },

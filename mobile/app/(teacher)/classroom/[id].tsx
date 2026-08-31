@@ -2,9 +2,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { AnnouncementBoard } from '../../../src/components/AnnouncementBoard';
 import { GoalPlanBoard } from '../../../src/components/GoalPlanBoard';
 import { TuitionManager } from '../../../src/components/TuitionManager';
-import { Button, Card, colors, H1, Input, Muted, Screen } from '../../../src/components/ui';
+import { Button, Card, Chip, colors, H1, Input, Muted, Screen } from '../../../src/components/ui';
 import { useClassroomAttendance, useMarkAttendance } from '../../../src/hooks/useAttendance';
 import { useClassroomStudents } from '../../../src/hooks/useClassrooms';
 import { useCreateExamRecord } from '../../../src/hooks/useExamRecords';
@@ -18,6 +19,7 @@ const ATTENDANCE_OPTIONS: { value: AttendanceStatus; label: string }[] = [
 
 const SECTIONS = [
   { key: 'goals', label: '목표' },
+  { key: 'announcements', label: '공지' },
   { key: 'attendance', label: '출석' },
   { key: 'exam', label: '성적' },
   { key: 'tuition', label: '수업료' },
@@ -49,18 +51,13 @@ export default function ClassroomDetail() {
         style={{ marginTop: 14, marginBottom: 4, flexGrow: 0 }}
       >
         {SECTIONS.map((s) => (
-          <Pressable
-            key={s.key}
-            onPress={() => setSection(s.key)}
-            style={[styles.segment, section === s.key && styles.segmentActive]}
-          >
-            <Text style={[styles.segmentText, section === s.key && { color: '#fff' }]}>{s.label}</Text>
-          </Pressable>
+          <Chip key={s.key} label={s.label} active={section === s.key} onPress={() => setSection(s.key)} />
         ))}
       </ScrollView>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
         {section === 'goals' && id && <GoalPlanBoard classroomId={id} />}
+        {section === 'announcements' && id && <AnnouncementBoard classroomId={id} />}
         {section === 'attendance' && id && <AttendanceSection classroomId={id} roster={roster ?? []} />}
         {section === 'exam' && id && <ExamSection classroomId={id} roster={roster ?? []} />}
         {section === 'tuition' && id && <TuitionManager classroomId={id} />}
@@ -92,17 +89,15 @@ function AttendanceSection({
           return (
             <View key={r.id} style={styles.attendanceRow}>
               <Text style={{ color: colors.text, flex: 1 }}>{r.student.name}</Text>
-              <View style={{ flexDirection: 'row', gap: 6 }}>
+              <View style={{ flexDirection: 'row' }}>
                 {ATTENDANCE_OPTIONS.map((opt) => (
-                  <Pressable
+                  <Chip
                     key={opt.value}
+                    label={opt.label}
+                    active={current === opt.value}
+                    tone={opt.value === 'ABSENT' ? 'danger' : 'primary'}
                     onPress={() => markAttendance.mutate({ studentId: r.student.id, status: opt.value })}
-                    style={[styles.attendanceChip, current === opt.value && styles.segmentActive]}
-                  >
-                    <Text style={[styles.attendanceChipText, current === opt.value && { color: '#fff' }]}>
-                      {opt.label}
-                    </Text>
-                  </Pressable>
+                  />
                 ))}
               </View>
             </View>
@@ -144,15 +139,12 @@ function ExamSection({
         <Text style={styles.label}>학생 선택</Text>
         <View style={styles.row}>
           {roster.map((r) => (
-            <Pressable
+            <Chip
               key={r.student.id}
+              label={r.student.name}
+              active={examStudentId === r.student.id}
               onPress={() => setExamStudentId(r.student.id)}
-              style={[styles.segment, examStudentId === r.student.id && styles.segmentActive]}
-            >
-              <Text style={[styles.segmentText, examStudentId === r.student.id && { color: '#fff' }]}>
-                {r.student.name}
-              </Text>
-            </Pressable>
+            />
           ))}
         </View>
         <Input placeholder="시험명 (예: 중간고사)" value={examName} onChangeText={setExamName} />
@@ -212,34 +204,18 @@ function RosterSection({
 
 const styles = StyleSheet.create({
   label: { fontSize: 12, color: colors.textMuted, marginBottom: 6 },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 },
-  segment: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 18,
-    backgroundColor: colors.primarySoft,
-    marginRight: 8,
-  },
-  segmentActive: { backgroundColor: colors.primary },
-  segmentText: { fontSize: 13, color: colors.primary, fontWeight: '600' },
+  row: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 6 },
   attendanceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  attendanceChip: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 14,
-    backgroundColor: colors.primarySoft,
-  },
-  attendanceChipText: { fontSize: 12, color: colors.primary, fontWeight: '600' },
   messageBtn: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 999,
     backgroundColor: colors.primarySoft,
   },
 });

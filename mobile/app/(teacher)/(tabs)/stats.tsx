@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView } from 'react-native';
 
 import { StudentStatCard } from '../../../src/components/StudentStatCard';
 import { TopBar } from '../../../src/components/TopBar';
-import { colors, Muted, Screen } from '../../../src/components/ui';
+import { Chip, Muted, Screen } from '../../../src/components/ui';
 import { useAuth } from '../../../src/hooks/useAuth';
 import { useClassroomStudents, useTeacherClassrooms } from '../../../src/hooks/useClassrooms';
 
@@ -23,15 +23,9 @@ export default function TeacherStats() {
       <TopBar title="통계" />
 
       {classrooms && classrooms.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12, flexGrow: 0 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 4, flexGrow: 0 }}>
           {classrooms.map((item) => (
-            <Pressable
-              key={item.id}
-              onPress={() => setSelectedId(item.id)}
-              style={[styles.chip, selectedId === item.id && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, selectedId === item.id && { color: '#fff' }]}>{item.name}</Text>
-            </Pressable>
+            <Chip key={item.id} label={item.name} active={selectedId === item.id} onPress={() => setSelectedId(item.id)} />
           ))}
         </ScrollView>
       )}
@@ -45,21 +39,3 @@ export default function TeacherStats() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: colors.primarySoft,
-    marginRight: 8,
-  },
-  chipActive: {
-    backgroundColor: colors.primary,
-  },
-  chipText: {
-    color: colors.primary,
-    fontWeight: '600',
-    fontSize: 13,
-  },
-});

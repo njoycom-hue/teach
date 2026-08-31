@@ -151,6 +151,15 @@ export interface PersonalGoal {
   created_at: string;
 }
 
+export interface Announcement {
+  id: string;
+  classroom_id: string;
+  teacher_id: string;
+  title: string;
+  body: string | null;
+  created_at: string;
+}
+
 export interface Message {
   id: string;
   classroom_id: string;

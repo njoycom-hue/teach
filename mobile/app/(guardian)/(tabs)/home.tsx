@@ -1,15 +1,18 @@
 import React, { useCallback, useState } from 'react';
 import { RefreshControl, ScrollView, Text } from 'react-native';
 
+import { AnnouncementList } from '../../../src/components/AnnouncementList';
 import { StudentStatCard } from '../../../src/components/StudentStatCard';
 import { TopBar } from '../../../src/components/TopBar';
 import { Button, Card, colors, H2, Input, Muted, Screen } from '../../../src/components/ui';
+import { useGuardianAnnouncements } from '../../../src/hooks/useAnnouncements';
 import { useAuth } from '../../../src/hooks/useAuth';
 import { useGuardianStudents, useLinkGuardianToStudent } from '../../../src/hooks/useClassrooms';
 
 export default function GuardianHome() {
   const { profile } = useAuth();
   const { data: links, isLoading, isError, refetch } = useGuardianStudents(profile?.id);
+  const { data: announcements, isLoading: announcementsLoading } = useGuardianAnnouncements(profile?.id);
   const linkGuardian = useLinkGuardianToStudent();
 
   const [email, setEmail] = useState('');
@@ -61,6 +64,8 @@ export default function GuardianHome() {
         {approved.map((item) => (
           <StudentStatCard key={item.id} studentId={item.student.id} studentName={item.student.name} />
         ))}
+
+        <AnnouncementList announcements={announcements} isLoading={announcementsLoading} />
 
         <Card style={{ marginTop: 8 }}>
           <H2>자녀 계정 연결하기</H2>

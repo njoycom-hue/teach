@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useState } from 'react';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 
+import { AnnouncementList } from '../../../src/components/AnnouncementList';
 import { GuardianRequestsCard } from '../../../src/components/GuardianRequestsCard';
 import { MyGoalsCard } from '../../../src/components/MyGoalsCard';
 import { ProgressSummaryCard } from '../../../src/components/ProgressSummaryCard';
@@ -14,6 +15,7 @@ import { useAuth } from '../../../src/hooks/useAuth';
 import { useJoinClassroom, useMyClassrooms } from '../../../src/hooks/useClassrooms';
 import { useCompleteGoal, useTodayGoals } from '../../../src/hooks/useGoals';
 import { useAutoGenerateRecurringGoals } from '../../../src/hooks/useGoalTemplates';
+import { useMyAnnouncements } from '../../../src/hooks/useAnnouncements';
 import { useUploadProof } from '../../../src/hooks/useProofUpload';
 
 export default function TodayGoals() {
@@ -43,6 +45,7 @@ export default function TodayGoals() {
       queryClient.invalidateQueries({ queryKey: ['weekly-stats'] }),
       queryClient.invalidateQueries({ queryKey: ['upcoming-goals'] }),
       queryClient.invalidateQueries({ queryKey: ['personal-goals'] }),
+      queryClient.invalidateQueries({ queryKey: ['announcements'] }),
     ]);
     setRefreshing(false);
   }, [refetchGoals, queryClient]);
@@ -74,6 +77,7 @@ export default function TodayGoals() {
   };
 
   const hasClassroom = classroomIds.length > 0;
+  const { data: announcements, isLoading: announcementsLoading } = useMyAnnouncements(classroomIds);
 
   return (
     <Screen>
@@ -103,6 +107,8 @@ export default function TodayGoals() {
 
         {hasClassroom && (
           <>
+            <AnnouncementList announcements={announcements} isLoading={announcementsLoading} />
+
             <H2 style={{ marginTop: 4 }}>선생님이 준 오늘 할 일</H2>
             {proofError && <Text style={{ color: colors.danger, marginBottom: 8 }}>{proofError}</Text>}
             {goalsError && <Muted>목표를 불러오지 못했어요. 아래로 당겨서 새로고침해보세요.</Muted>}
